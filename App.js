@@ -54,6 +54,12 @@ const AllScreen = ({navigation}) => {
     const newTodoList = [...todoList];
     setTodoList(newTodoList);
 
+    setTimeout(() => {
+      navigation.navigate('SingleTodoList', {
+        updatedTodo: todo
+      });
+    }, 1000);
+
   };
 
   const onDeleteTodo = id => {
