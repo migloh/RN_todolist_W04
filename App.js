@@ -1,31 +1,46 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, Alert, Button, ScrollView, TextInput } from "react-native";
+import { StyleSheet, Text, View, Alert, Button, ScrollView, TextInput,ImageBackground, KeyboardAvoidingView } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import { createDrawerNavigator } from "@react-navigation/drawer";
 import Constants from "expo-constants";
 import {TODOS} from "./data.js";
-import { tabBarIcon } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { DrawerActions } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
-
-
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const routeIcons = {
-  Complete: "message1",
-  All: "md-link",
-  Active: "team",
+const allThings = () => {
+  return (
+      <Stack.Navigator>
+        <Stack.Screen name="Todo" component={AllScreen}  options={{ title: 'All todo' }} />
+        <Stack.Screen name="Details" component={SingleTodoScreen} options={{ title: 'Content' }} />
+      </Stack.Navigator>
+  );
+}
+const allComplete = () => {
+  return (
+      <Stack.Navigator>
+        <Stack.Screen name="Completed" component={CompleteScreen}  options={{ title: 'Completed' }} />
+        <Stack.Screen name="Details" component={SingleTodoScreen} />
+      </Stack.Navigator>
+  );
+}
 
-};
-
-const CompleteScreen = () => <Text>Complete Screen</Text>;
+const allActive = () => {
+  return (
+      <Stack.Navigator>
+        <Stack.Screen name="Active" component={ActiveScreen}  options={{ title: 'Active' }} />
+        <Stack.Screen name="Details" component={SingleTodoScreen} />
+      </Stack.Navigator>
+  );
+}
+const CompleteScreen = () => <Text>Complete Screen</Text>
 const ActiveScreen = () => <Text>Active Screen</Text>
-const AllScreen = ({navigation, props}) => {
+
+const AllScreen = ({navigation}) => {
   const [todoList, setTodoList] = useState(TODOS);
   const [todoBody, setTodoBody] = useState('');
 
@@ -38,6 +53,7 @@ const AllScreen = ({navigation, props}) => {
 
     const newTodoList = [...todoList];
     setTodoList(newTodoList);
+
   };
 
   const onDeleteTodo = id => {
@@ -91,8 +107,17 @@ const AllScreen = ({navigation, props}) => {
       </TouchableOpacity>
     );
   };
+
   return (
+    <ImageBackground style={styles.container} source={{ uri: 'https://gray-kcrg-prod.cdn.arcpublishing.com/resizer/0_CVXjDCy2bCyYm55rhn4rhXT0A=/1200x675/smart/cloudfront-us-east-1.images.arcpublishing.com/gray/SV24O2UNBJKAFCJDNEEZ27VC6U.jpg' }}>
+  <KeyboardAvoidingView
+    enabled
+    behavior="padding"
+    
+  >
+    
     <View style={styles.container}>
+      <ScrollView>
       {todoList.map((todo, idx) => {
         return (
           <TodoItem
@@ -114,31 +139,53 @@ const AllScreen = ({navigation, props}) => {
           <Text style={styles.buttonText}>Submit</Text>
         </TouchableOpacity>
       </View>
+      </ScrollView>
+      </View>
+    
+  </KeyboardAvoidingView>
+  </ImageBackground>
+  );
+};
+
+const SingleTodoScreen = ({route}) => {
+  return (
+    <View style={styles.containerDetails}>
+      <Text style={styles.headerText}>
+        {route.params?.id}. {route.params?.status}
+      </Text>
+      <Text style={styles.bodyText}>{route.params?.body}</Text>
     </View>
   );
 };
 
-CompleteScreen.navigationOptions = {
-  header: null
+const routeIcons = {
+  Complete: "checkcircle",
+  All: "bars",
+  Active: "downcircleo",
+
 };
-
-
 
 export default function App() {
   return (
-    <NavigationContainer>
+    <NavigationContainer initialRouteName="All">
       <Tab.Navigator
-        initialRouteName = "AllScreen"
         screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused }) => (
+          <AntDesign
+            name={routeIcons[route.name]}
+            size={24}
+            color={focused ? "blue" : "grey"}
+          />
+        ), 
         })}
         tabBarOptions={{
           activeTintColor: "blue",
           inactiveTintColor: "grey",
         }}
       >
-        <Tab.Screen name="Complete" component={CompleteScreen} />
-        <Tab.Screen name="All" component={AllScreen} />
-        <Tab.Screen name="Active" component={ActiveScreen} />
+        <Tab.Screen name="Complete" component={allComplete} />
+        <Tab.Screen name="All" component={allThings} />
+        <Tab.Screen name="Active" component={allActive} />
       </Tab.Navigator>
     </NavigationContainer>
   );
@@ -148,7 +195,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: '#fff',
+
     justifyContent: 'center'
   },
   todoItem: {
@@ -193,7 +240,23 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold'
-  }
+  },
+
+  containerDetails: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  headerContainer: {
+    flexDirection: 'row'
+  },
+  headerText: {
+    fontSize: 30
+  },
+  bodyText: {
+    fontSize: 50
+  },
+
 });
 
   //  tabBarIcon: ({ focused }) => (
@@ -202,4 +265,4 @@ const styles = StyleSheet.create({
   //       size={24}
   //       color={focused ? "blue" : "grey"}
   //     />
-  //   ),
+  //   ), 
